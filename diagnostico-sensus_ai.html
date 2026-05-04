@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico Digital Gratuito · Sensus AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #131313;
+      --card2: #1a1a1a;
+      --border: #252525;
+      --text: #f0ede6;
+      --muted: #666;
+      --muted2: #999;
+      --accent: #b8f442;
+      --accent-dim: rgba(184,244,66,0.12);
+      --accent-glow: rgba(184,244,66,0.25);
+      --danger: #ff5e5e;
+      --radius: 14px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .6;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(680px, 92%);
+      margin: auto;
+      padding: 32px 0 80px;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .logo span { color: var(--muted2); font-weight: 400; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(184,244,66,.2);
+      padding: 5px 12px;
+      border-radius: 100px;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      margin-bottom: 36px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--muted2);
+      letter-spacing: .05em;
+    }
+
+    .progress-count {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 10px;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* ── INTRO SCREEN ── */
+    #screen-intro {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .intro-eyebrow {
+      font-size: 12px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .intro-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(34px, 8vw, 58px);
+      font-weight: 800;
+      line-height: 1.02;
+      margin-bottom: 20px;
+    }
+
+    .intro-title em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .intro-sub {
+      font-size: 16px;
+      color: var(--muted2);
+      line-height: 1.65;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      font-weight: 300;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 44px;
+    }
+
+    .pill {
+      font-size: 12px;
+      color: var(--muted2);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 100px;
+    }
+
+    .pill strong { color: var(--text); }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      letter-spacing: .01em;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-primary svg { flex-shrink: 0; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── QUESTION SCREEN ── */
+    #screen-questions { display: none; }
+
+    .q-step { display: none; }
+    .q-step.active { display: block; animation: fadeUp .35s ease both; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-number {
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .q-text {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(22px, 5vw, 30px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .q-hint {
+      font-size: 13px;
+      color: var(--muted2);
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+
+    /* ── OPTION CARDS ── */
+    .options-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .options-grid.cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid.cols-2 { grid-template-columns: 1fr; }
+    }
+
+    .opt {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .opt input[type="radio"],
+    .opt input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .opt-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color .2s, background .2s, transform .15s;
+      user-select: none;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .opt-label:hover {
+      border-color: rgba(184,244,66,.35);
+      background: var(--card2);
+    }
+
+    .opt input:checked + .opt-label {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--text);
+    }
+
+    .opt-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+    }
+
+    .opt-text strong {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .opt-text small {
+      color: var(--muted2);
+      font-size: 12px;
+      font-weight: 300;
+    }
+
+    .opt input:checked + .opt-label .opt-text small { color: #999; }
+
+    /* ── TEXT INPUT ── */
+    .q-input {
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 16px 18px;
+      outline: none;
+      transition: border-color .2s;
+      resize: vertical;
+    }
+
+    .q-input:focus { border-color: rgba(184,244,66,.5); }
+    .q-input::placeholder { color: var(--muted); }
+
+    textarea.q-input { min-height: 110px; }
+
+    /* ── SCALE ── */
+    .scale-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .scale-btn {
+      flex: 1;
+      aspect-ratio: 1;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted2);
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .scale-btn:hover { border-color: rgba(184,244,66,.4); color: var(--text); }
+    .scale-btn.selected { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── NAV BUTTONS ── */
+    .q-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn-next {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, opacity .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
+    .btn-next:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-back {
+      background: transparent;
+      color: var(--muted2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 13px 20px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── CONTACT SCREEN ── */
+    #screen-contact { display: none; }
+
+    .contact-intro {
+      margin-bottom: 32px;
+    }
+
+    .contact-intro h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .contact-intro p {
+      color: var(--muted2);
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+
+    @media (max-width: 480px) {
+      .form-row.cols-2 { grid-template-columns: 1fr; }
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    /* ── SUCCESS SCREEN ── */
+    #screen-success { display: none; text-align: center; padding: 40px 0; }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--accent-dim);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      font-size: 30px;
+    }
+
+    .success-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(26px, 6vw, 40px);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .success-title em { color: var(--accent); font-style: normal; }
+
+    .success-sub {
+      font-size: 15px;
+      color: var(--muted2);
+      max-width: 420px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .results-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+
+    .results-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted2);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .result-row {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-q { color: var(--muted2); flex: 0 0 45%; font-weight: 300; }
+    .result-a { color: var(--text); font-weight: 500; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── REQUIRED HINT ── */
+    .required-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* ── CHECKBOX MULTI ── */
+    .multi-note {
+      font-size: 12px;
+      color: var(--muted2);
+      margin-bottom: 16px;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(10,10,10,.3);
+      border-top-color: #0a0a0a;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo">Presenc<span>IA</span> Digital</div>
+    <div class="badge">Diagnóstico Gratuito</div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 1: INTRO
+  ══════════════════════════════════════ -->
+  <div id="screen-intro">
+    <p class="intro-eyebrow">⚡ 3 minutos · 10 preguntas · 100% gratis</p>
+    <h1 class="intro-title">
+      ¿Qué tan digital<br>es tu <em>negocio</em>?
+    </h1>
+    <p class="intro-sub">
+      Descubre en 3 minutos qué tan preparado está tu consultorio o negocio para el mundo digital — y qué acciones concretas puedes tomar hoy.
+    </p>
+    <div class="pills">
+      <span class="pill">🩺 <strong>Salud</strong></span>
+      <span class="pill">🐾 <strong>Veterinarias</strong></span>
+      <span class="pill">💆 <strong>Bienestar</strong></span>
+      <span class="pill">🦷 <strong>Odontología</strong></span>
+      <span class="pill">🧠 <strong>Psicología</strong></span>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">
+      Iniciar diagnóstico
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 2: PREGUNTAS
+  ══════════════════════════════════════ -->
+  <div id="screen-questions">
+
+    <!-- Barra de progreso -->
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Tu diagnóstico</span>
+        <span class="progress-count" id="progress-count">1 / 10</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 1 ─ -->
+    <div class="q-step" id="q1">
+      <p class="q-number">Pregunta 01 · Tu perfil</p>
+      <h2 class="q-text">¿Cuál es tu actividad principal?</h2>
+      <p class="q-hint">Selecciona la que mejor describe tu trabajo.</p>
+      <div class="options-grid cols-2">
+        <label class="opt">
+          <input type="radio" name="q1" value="Psicólogo/a">
+          <span class="opt-label"><span class="opt-icon">🧠</span><span class="opt-text"><strong>Psicólogo/a</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Nutricionista">
+          <span class="opt-label"><span class="opt-icon">🥗</span><span class="opt-text"><strong>Nutricionista</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Fisioterapeuta">
+          <span class="opt-label"><span class="opt-icon">🦴</span><span class="opt-text"><strong>Fisioterapeuta</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Odontólogo/a">
+          <span class="opt-label"><span class="opt-icon">🦷</span><span class="opt-text"><strong>Odontólogo/a</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Veterinaria / Clínica vet.">
+          <span class="opt-label"><span class="opt-icon">🐾</span><span class="opt-text"><strong>Veterinaria</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Estética médica / Spa">
+          <span class="opt-label"><span class="opt-icon">✨</span><span class="opt-text"><strong>Estética médica</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Médico / Especialista">
+          <span class="opt-label"><span class="opt-icon">🩺</span><span class="opt-text"><strong>Médico / Especialista</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q1" value="Otro">
+          <span class="opt-label"><span class="opt-icon">➕</span><span class="opt-text"><strong>Otro</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q1">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-next" onclick="goNext(1)">Siguiente <span>→</span></button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 2 ─ -->
+    <div class="q-step" id="q2">
+      <p class="q-number">Pregunta 02 · Presencia web</p>
+      <h2 class="q-text">¿Tienes página web propia?</h2>
+      <p class="q-hint">No cuenta tu perfil de redes sociales.</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="radio" name="q2" value="Sí, está actualizada y funciona bien">
+          <span class="opt-label"><span class="opt-icon">✅</span><span class="opt-text"><strong>Sí, actualizada y funciona bien</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q2" value="Sí, pero está desactualizada o no la uso">
+          <span class="opt-label"><span class="opt-icon">⚠️</span><span class="opt-text"><strong>Sí, pero desactualizada o sin uso</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q2" value="No tengo página web">
+          <span class="opt-label"><span class="opt-icon">❌</span><span class="opt-text"><strong>No tengo página web</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q2" value="Estoy en proceso de crearla">
+          <span class="opt-label"><span class="opt-icon">🔧</span><span class="opt-text"><strong>Estoy en proceso de crearla</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q2">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(2)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(2)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 3 ─ -->
+    <div class="q-step" id="q3">
+      <p class="q-number">Pregunta 03 · Citas y agenda</p>
+      <h2 class="q-text">¿Cómo agendan citas tus clientes hoy?</h2>
+      <p class="q-hint">Selecciona el método principal que usan.</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="radio" name="q3" value="WhatsApp manual (yo mismo/a respondo)">
+          <span class="opt-label"><span class="opt-icon">💬</span><span class="opt-text"><strong>WhatsApp manual</strong><small>Yo mismo respondo cada mensaje</small></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q3" value="Llamada telefónica">
+          <span class="opt-label"><span class="opt-icon">📞</span><span class="opt-text"><strong>Llamada telefónica</strong><small>Coordinación por llamada directa</small></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q3" value="Presencial / walk-in">
+          <span class="opt-label"><span class="opt-icon">🚪</span><span class="opt-text"><strong>Presencial / walk-in</strong><small>El cliente llega directo al lugar</small></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q3" value="Sistema de agendamiento online">
+          <span class="opt-label"><span class="opt-icon">📅</span><span class="opt-text"><strong>Sistema de agendamiento online</strong><small>Calendly, Simplybook u otro</small></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q3" value="Bot o automatización de WhatsApp">
+          <span class="opt-label"><span class="opt-icon">🤖</span><span class="opt-text"><strong>Bot o automatización</strong><small>WhatsApp Business con respuestas automáticas</small></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q3">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(3)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(3)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 4 ─ -->
+    <div class="q-step" id="q4">
+      <p class="q-number">Pregunta 04 · Volumen de mensajes</p>
+      <h2 class="q-text">¿Cuántos mensajes de WhatsApp recibes al día aproximadamente?</h2>
+      <p class="q-hint">Considera mensajes de clientes actuales y nuevos.</p>
+      <div class="options-grid cols-2">
+        <label class="opt">
+          <input type="radio" name="q4" value="Menos de 5 mensajes/día">
+          <span class="opt-label"><span class="opt-icon">🌱</span><span class="opt-text"><strong>Menos de 5</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q4" value="Entre 5 y 15 mensajes/día">
+          <span class="opt-label"><span class="opt-icon">📊</span><span class="opt-text"><strong>5 a 15</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q4" value="Entre 15 y 30 mensajes/día">
+          <span class="opt-label"><span class="opt-icon">📈</span><span class="opt-text"><strong>15 a 30</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q4" value="Más de 30 mensajes/día">
+          <span class="opt-label"><span class="opt-icon">🔥</span><span class="opt-text"><strong>Más de 30</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q4">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(4)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(4)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 5 ─ -->
+    <div class="q-step" id="q5">
+      <p class="q-number">Pregunta 05 · Tiempo invertido</p>
+      <h2 class="q-text">¿Cuánto tiempo al día dedicas a responder mensajes y coordinar citas?</h2>
+      <p class="q-hint">Sé honesto/a — este es uno de los mayores costos ocultos.</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="radio" name="q5" value="Menos de 30 minutos/día">
+          <span class="opt-label"><span class="opt-icon">⚡</span><span class="opt-text"><strong>Menos de 30 minutos</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q5" value="Entre 30 min y 1 hora/día">
+          <span class="opt-label"><span class="opt-icon">🕐</span><span class="opt-text"><strong>Entre 30 min y 1 hora</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q5" value="Entre 1 y 2 horas/día">
+          <span class="opt-label"><span class="opt-icon">🕑</span><span class="opt-text"><strong>Entre 1 y 2 horas</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q5" value="Más de 2 horas/día">
+          <span class="opt-label"><span class="opt-icon">😓</span><span class="opt-text"><strong>Más de 2 horas</strong><small>Esto es demasiado — hay solución</small></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q5">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(5)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(5)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 6 ─ -->
+    <div class="q-step" id="q6">
+      <p class="q-number">Pregunta 06 · Redes sociales</p>
+      <h2 class="q-text">¿Cómo está tu presencia en redes sociales?</h2>
+      <p class="q-hint">Selecciona la opción más cercana a tu realidad actual.</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="radio" name="q6" value="Activo/a con publicaciones frecuentes">
+          <span class="opt-label"><span class="opt-icon">🚀</span><span class="opt-text"><strong>Activo/a con publicaciones frecuentes</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q6" value="Tengo perfil pero publico poco o nada">
+          <span class="opt-label"><span class="opt-icon">💤</span><span class="opt-text"><strong>Tengo perfil pero publico poco o nada</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q6" value="No tengo perfil de negocio">
+          <span class="opt-label"><span class="opt-icon">❌</span><span class="opt-text"><strong>No tengo perfil de negocio</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q6" value="Tengo perfil pero no sé cómo aprovecharlo">
+          <span class="opt-label"><span class="opt-icon">🤔</span><span class="opt-text"><strong>Tengo perfil pero no sé cómo aprovecharlo</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q6">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(6)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(6)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 7 ─ -->
+    <div class="q-step" id="q7">
+      <p class="q-number">Pregunta 07 · Publicidad digital</p>
+      <h2 class="q-text">¿Has invertido en publicidad digital (Meta Ads, Google Ads)?</h2>
+      <p class="q-hint">Incluye aunque sea campañas pequeñas o de prueba.</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="radio" name="q7" value="Sí, invierto regularmente y veo resultados">
+          <span class="opt-label"><span class="opt-icon">📈</span><span class="opt-text"><strong>Sí, regularmente y con resultados</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q7" value="Lo probé pero no vi resultados claros">
+          <span class="opt-label"><span class="opt-icon">🤷</span><span class="opt-text"><strong>Lo probé sin resultados claros</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q7" value="No, nunca lo he intentado">
+          <span class="opt-label"><span class="opt-icon">🚫</span><span class="opt-text"><strong>No, nunca lo he intentado</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="q7" value="Me interesa pero no sé cómo">
+          <span class="opt-label"><span class="opt-icon">💡</span><span class="opt-text"><strong>Me interesa pero no sé cómo empezar</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q7">Por favor selecciona una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(7)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(7)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 8 ─ -->
+    <div class="q-step" id="q8">
+      <p class="q-number">Pregunta 08 · Dolores principales</p>
+      <h2 class="q-text">¿Cuáles son tus mayores frustraciones hoy?</h2>
+      <p class="q-hint">Puedes seleccionar más de una.</p>
+      <p class="multi-note">✓ Selección múltiple permitida</p>
+      <div class="options-grid">
+        <label class="opt">
+          <input type="checkbox" name="q8" value="Pierdo tiempo respondiendo WhatsApp">
+          <span class="opt-label"><span class="opt-icon">💬</span><span class="opt-text"><strong>Pierdo demasiado tiempo en WhatsApp</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="checkbox" name="q8" value="Se me olvida hacer seguimiento a leads">
+          <span class="opt-label"><span class="opt-icon">📋</span><span class="opt-text"><strong>Se me olvida hacer seguimiento a prospectos</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="checkbox" name="q8" value="No tengo forma de mostrar mis servicios online">
+          <span class="opt-label"><span class="opt-icon">🌐</span><span class="opt-text"><strong>No tengo forma de mostrar mis servicios online</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="checkbox" name="q8" value="Los clientes no saben encontrarme online">
+          <span class="opt-label"><span class="opt-icon">🔍</span><span class="opt-text"><strong>Los clientes no me encuentran fácilmente</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="checkbox" name="q8" value="No tengo tiempo para manejar redes sociales">
+          <span class="opt-label"><span class="opt-icon">📱</span><span class="opt-text"><strong>No tengo tiempo para manejar redes sociales</strong></span></span>
+        </label>
+        <label class="opt">
+          <input type="checkbox" name="q8" value="Quiero crecer pero no sé por dónde empezar">
+          <span class="opt-label"><span class="opt-icon">🎯</span><span class="opt-text"><strong>Quiero crecer pero no sé por dónde empezar</strong></span></span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q8">Selecciona al menos una opción.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(8)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(8)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 9 ─ -->
+    <div class="q-step" id="q9">
+      <p class="q-number">Pregunta 09 · Prioridad</p>
+      <h2 class="q-text">Si pudieras resolver UNA sola cosa en los próximos 30 días, ¿qué sería?</h2>
+      <p class="q-hint">Escribe libremente — esta respuesta es la más valiosa del diagnóstico.</p>
+      <textarea class="q-input" name="q9" id="q9-input" rows="4" placeholder="Ej: Que los clientes puedan agendar solos sin depender de mí..."></textarea>
+      <p class="error-msg" id="err-q9">Por favor escribe tu respuesta.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(9)">← Atrás</button>
+        <button class="btn-next" onclick="goNext(9)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- ─ PREGUNTA 10 ─ -->
+    <div class="q-step" id="q10">
+      <p class="q-number">Pregunta 10 · Nivel de urgencia</p>
+      <h2 class="q-text">¿Qué tan urgente es para ti resolver esto?</h2>
+      <p class="q-hint">1 = puede esperar · 10 = lo necesito ahora</p>
+      <div class="scale-wrap" id="scale-q10"></div>
+      <div class="scale-labels"><span>Puede esperar</span><span>¡Lo necesito ya!</span></div>
+      <p class="error-msg" id="err-q10">Por favor selecciona un valor.</p>
+      <div class="q-nav">
+        <button class="btn-back" onclick="goBack(10)">← Atrás</button>
+        <button class="btn-next" onclick="showContact()">Ver resultados →</button>
+      </div>
+    </div>
+
+  </div><!-- /screen-questions -->
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 3: DATOS DE CONTACTO
+  ══════════════════════════════════════ -->
+  <div id="screen-contact">
+    <div class="contact-intro">
+      <h2>¡Ya casi terminas! 🎉</h2>
+      <p>Deja tus datos para enviarte el diagnóstico personalizado por WhatsApp.</p>
+    </div>
+
+    <!--
+      ════════════════════════════════════════════════════════
+      INSTRUCCIÓN: Pega tu URL de Google Apps Script en la
+      variable SHEET_URL dentro del bloque <script> al final.
+      ════════════════════════════════════════════════════════
+    -->
+    <form id="contact-form">
+
+
+
+      <div class="form-row cols-2">
+        <div class="field">
+          <label for="f-name">Nombre completo *</label>
+          <input type="text" id="f-name" name="nombre" class="q-input" placeholder="Tu nombre" required>
+        </div>
+        <div class="field">
+          <label for="f-city">Ciudad *</label>
+          <input type="text" id="f-city" name="ciudad" class="q-input" placeholder="Tu ciudad" required>
+        </div>
+      </div>
+
+      <div class="form-row cols-2">
+        <div class="field">
+          <label for="f-wa">WhatsApp *</label>
+          <input type="tel" id="f-wa" name="whatsapp" class="q-input" placeholder="+57 300 000 0000" required>
+        </div>
+        <div class="field">
+          <label for="f-email">Email (opcional)</label>
+          <input type="email" id="f-email" name="email" class="q-input" placeholder="tu@email.com">
+        </div>
+      </div>
+
+      <p class="required-hint">* Tu información es confidencial. Solo la usamos para enviarte el diagnóstico.</p>
+
+      <div class="q-nav" style="margin-top: 24px;">
+        <button type="submit" class="btn-next" id="btn-submit">
+          <span id="btn-submit-text">Ver mi diagnóstico →</span>
+          <div class="spinner" id="submit-spinner"></div>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 4: ÉXITO
+  ══════════════════════════════════════ -->
+  <div id="screen-success">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">¡Diagnóstico<br><em>recibido!</em></h2>
+    <p class="success-sub">
+      Revisaremos tus respuestas y te contactaremos en menos de 24 horas con un plan de acción personalizado para tu negocio.
+    </p>
+
+    <div class="results-card">
+      <h3>📋 Tus respuestas</h3>
+      <div id="results-summary"></div>
+    </div>
+
+    <a href="https://wa.me/573000000000?text=Hola%2C%20acabo%20de%20completar%20el%20diagn%C3%B3stico%20digital" 
+       class="btn-primary" 
+       id="wa-link"
+       target="_blank" 
+       style="text-decoration:none; margin: 0 auto;">
+      💬 Hablar por WhatsApp ahora
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-logo">Sensus AI</div>
+    <p class="footer-copy">© 2026 · Sensus AI · Todos los derechos reservados</p>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script>
+  /* ══════════════════════════════
+     ESTADO GLOBAL
+  ══════════════════════════════ */
+  const TOTAL = 10;
+  let current = 1;
+  const answers = {};
+
+  /* ══════════════════════════════
+     ESCALA 1–10
+  ══════════════════════════════ */
+  function buildScale() {
+    const wrap = document.getElementById('scale-q10');
+    for (let i = 1; i <= 10; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'scale-btn';
+      btn.textContent = i;
+      btn.dataset.val = i;
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        answers['q10'] = this.dataset.val;
+      });
+      wrap.appendChild(btn);
+    }
+  }
+
+  /* ══════════════════════════════
+     INICIO
+  ══════════════════════════════ */
+  function startQuiz() {
+    document.getElementById('screen-intro').style.display = 'none';
+    document.getElementById('screen-questions').style.display = 'block';
+    showStep(1);
+    buildScale();
+  }
+
+  /* ══════════════════════════════
+     MOSTRAR PASO
+  ══════════════════════════════ */
+  function showStep(n) {
+    document.querySelectorAll('.q-step').forEach(el => el.classList.remove('active'));
+    document.getElementById('q' + n).classList.add('active');
+    current = n;
+    updateProgress(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateProgress(n) {
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-count').textContent = n + ' / ' + TOTAL;
+  }
+
+  /* ══════════════════════════════
+     VALIDACIÓN Y AVANCE
+  ══════════════════════════════ */
+  function getAnswer(q) {
+    if (q === 'q8') {
+      const checked = document.querySelectorAll('input[name="q8"]:checked');
+      return checked.length > 0 ? Array.from(checked).map(c => c.value).join(' | ') : null;
+    }
+    if (q === 'q9') {
+      const v = document.getElementById('q9-input').value.trim();
+      return v.length > 0 ? v : null;
+    }
+    if (q === 'q10') {
+      return answers['q10'] || null;
+    }
+    const sel = document.querySelector('input[name="' + q + '"]:checked');
+    return sel ? sel.value : null;
+  }
+
+  function showError(q, show) {
+    const el = document.getElementById('err-' + q);
+    if (el) el.style.display = show ? 'block' : 'none';
+  }
+
+  function goNext(n) {
+    const key = 'q' + n;
+    const val = getAnswer(key);
+    if (!val) {
+      showError(key, true);
+      return;
+    }
+    showError(key, false);
+    answers[key] = val;
+
+    if (n < TOTAL) {
+      showStep(n + 1);
+    }
+  }
+
+  function goBack(n) {
+    if (n > 1) showStep(n - 1);
+    else {
+      document.getElementById('screen-questions').style.display = 'none';
+      document.getElementById('screen-intro').style.display = 'block';
+    }
+  }
+
+  /* ══════════════════════════════
+     MOSTRAR CONTACTO
+  ══════════════════════════════ */
+  function showContact() {
+    const val = getAnswer('q10');
+    if (!val) {
+      showError('q10', true);
+      return;
+    }
+    showError('q10', false);
+    answers['q10'] = val;
+
+    document.getElementById('screen-questions').style.display = 'none';
+    document.getElementById('screen-contact').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ══════════════════════════════
+     GOOGLE APPS SCRIPT — ENVÍO
+     ══════════════════════════════
+     Pega aquí tu URL de Apps Script.
+     Formato: https://script.google.com/macros/s/XXXXX/exec
+  ══════════════════════════════ */
+  const SHEET_URL = 'PEGA_AQUÍ_TU_URL_DE_APPS_SCRIPT';
+
+  document.getElementById('contact-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const btn  = document.getElementById('btn-submit');
+    const txt  = document.getElementById('btn-submit-text');
+    const spin = document.getElementById('submit-spinner');
+    btn.disabled = true;
+    txt.textContent = 'Enviando...';
+    spin.style.display = 'block';
+
+    const params = new URLSearchParams({
+      nombre:   document.getElementById('f-name').value,
+      ciudad:   document.getElementById('f-city').value,
+      whatsapp: document.getElementById('f-wa').value,
+      email:    document.getElementById('f-email').value,
+      q1:  answers['q1']  || '',
+      q2:  answers['q2']  || '',
+      q3:  answers['q3']  || '',
+      q4:  answers['q4']  || '',
+      q5:  answers['q5']  || '',
+      q6:  answers['q6']  || '',
+      q7:  answers['q7']  || '',
+      q8:  answers['q8']  || '',
+      q9:  answers['q9']  || '',
+      q10: answers['q10'] || ''
+    });
+
+    fetch(SHEET_URL + '?' + params.toString())
+      .then(() => showSuccess())
+      .catch(() => showSuccess());
+  });
+
+  /* ══════════════════════════════
+     PANTALLA DE ÉXITO
+  ══════════════════════════════ */
+  function showSuccess() {
+    document.getElementById('screen-contact').style.display = 'none';
+    document.getElementById('screen-success').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Renderizar resumen
+    const name = document.getElementById('f-name').value;
+    const wa   = document.getElementById('f-wa').value;
+    const qMeta = [
+      { q: 'Profesión', k: 'q1' },
+      { q: 'Presencia web', k: 'q2' },
+      { q: 'Agendamiento', k: 'q3' },
+      { q: 'Mensajes/día', k: 'q4' },
+      { q: 'Tiempo en WhatsApp', k: 'q5' },
+      { q: 'Redes sociales', k: 'q6' },
+      { q: 'Publicidad digital', k: 'q7' },
+      { q: 'Dolores', k: 'q8' },
+      { q: 'Prioridad 30 días', k: 'q9' },
+      { q: 'Urgencia', k: 'q10' },
+    ];
+    let html = '';
+    qMeta.forEach(m => {
+      if (answers[m.k]) {
+        html += `<div class="result-row">
+          <span class="result-q">${m.q}</span>
+          <span class="result-a">${answers[m.k]}</span>
+        </div>`;
+      }
+    });
+    document.getElementById('results-summary').innerHTML = html;
+
+    // Actualizar link de WhatsApp con nombre
+    const waClean = wa.replace(/\D/g, '');
+    const msg = encodeURIComponent(`Hola, soy ${name} y acabo de completar el diagnóstico digital de Sensus AI. ¿Cuándo podemos hablar?`);
+    // Este link lo puede personalizar Sergio con su número real
+    document.getElementById('wa-link').href = `https://wa.me/573000000000?text=${msg}`;
+  }
+</script>
+</body>
+</html>
